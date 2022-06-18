@@ -2,13 +2,13 @@ class CustomMaterialMutator extends ROMutator
     config(Mutator_CustomMaterial);
 
 // Map(s) that contain our custom materials.
-var array<name> LevelsToPreload;
+var name LevelsToPreload[`MAX_PRELOAD_LEVELS];
 
 var array<Actor> TestActors;
 
 function PreBeginPlay()
 {
-    PreloadLevels(LevelsToPreload);
+    PreloadLevels();
     PreloadCustomMaterials();
 
     super.PreBeginPlay();
@@ -18,8 +18,10 @@ function PreBeginPlay()
 
 function NotifyLogin(Controller NewPlayer)
 {
-    ClientPreloadLevels(LevelsToPreload);
-    ClientPreloadCustomMaterials();
+    PlayerController(NewPlayer).ClientMessage("Hello from CustomMaterialMutator");
+
+    ClientPreloadLevels(NewPlayer);
+    ClientPreloadCustomMaterials(NewPlayer);
 
     `cmmlog(NewPlayer $ " logged in");
 
@@ -27,15 +29,29 @@ function NotifyLogin(Controller NewPlayer)
 }
 
 // Preload level(s) that contain custom materials.
-function PreloadLevels(array<name> Levels)
+function PreloadLevels()
+{
+    DelayedPreloadLevels();
+}
+
+function DelayedPreloadLevels()
 {
     local int Idx;
+    local array<name> LevelsArr;
 
-    for (Idx = 0; Idx < Levels.Length; Idx++)
+    if (WorldInfo.IsPreparingMapChange())
     {
-        `cmmlog("Levels[" $ Idx $ "]: " $ Levels[Idx]);
+        SetTimer(0.01, False, NameOf(DelayedPreloadLevels));
     }
-    WorldInfo.PrepareMapChange(Levels);
+    else
+    {
+        for (Idx = 0; Idx < `MAX_PRELOAD_LEVELS; Idx++)
+        {
+            `cmmlog("Levels[" $ Idx $ "]: " $ LevelsToPreload[Idx]);
+            LevelsArr.AddItem(LevelsToPreload[Idx]);
+        }
+        WorldInfo.PrepareMapChange(LevelsArr);
+    }
 }
 
 // Preload the actual materials.
@@ -85,16 +101,18 @@ function DelayedPreloadCustomMaterials()
     }
 }
 
-reliable client function ClientPreloadCustomMaterials()
+reliable client function ClientPreloadCustomMaterials(Controller C)
 {
+    `cmmlog("PreloadCustomMaterials starting on " $ C);
     PreloadCustomMaterials();
-    `cmmlog("PreloadCustomMaterials done");
+    `cmmlog("PreloadCustomMaterials done on " $ C);
 }
 
-reliable client function ClientPreloadLevels(array<name> Levels)
+reliable client function ClientPreloadLevels(Controller C)
 {
-    PreLoadLevels(Levels);
-    `cmmlog("PreLoadLevels done");
+    `cmmlog("PreLoadLevels starting on " $ C);
+    PreLoadLevels();
+    `cmmlog("PreLoadLevels done on " $ C);
 }
 
 function ROMutate(string MutateString, PlayerController Sender, out string ResultMsg)
@@ -180,7 +198,7 @@ simulated function SpawnTestActor(PlayerController Player, string Type, optional
 
     if (Type == "static")
     {
-        SpawnedActor = Spawn(class'CMMStaticTestActor', Player,, Loc, Player.Pawn.Rotation);
+        SpawnedActor = Spawn(class'CMMStaticTestActor', Self,, Loc, Player.Pawn.Rotation);
         CMMStaticTestActor(SpawnedActor).StaticMeshComponent.SetMaterial(0, MaterialToApply);
         ReplMM.TargetComp = CMMStaticTestActor(SpawnedActor).StaticMeshComponent;
         ReplMM.MaterialIndex = 0;
@@ -190,7 +208,7 @@ simulated function SpawnTestActor(PlayerController Player, string Type, optional
     }
     else if (Type == "skeletal")
     {
-        SpawnedActor = Spawn(class'CMMSkeletalTestActor', Player,, Loc, Player.Pawn.Rotation);
+        SpawnedActor = Spawn(class'CMMSkeletalTestActor', Self,, Loc, Player.Pawn.Rotation);
         CMMSkeletalTestActor(SpawnedActor).SkeletalMeshComponent.SetMaterial(0, MaterialToApply);
         ReplMM.TargetComp = CMMSkeletalTestActor(SpawnedActor).SkeletalMeshComponent;
         ReplMM.MaterialIndex = 0;
@@ -200,7 +218,7 @@ simulated function SpawnTestActor(PlayerController Player, string Type, optional
     }
     else if (Type == "nodynamicmaterial")
     {
-        SpawnedActor = Spawn(class'CMMSkeletalTestActor2', Player,, Loc, Player.Pawn.Rotation);
+        SpawnedActor = Spawn(class'CMMSkeletalTestActor2', Self,, Loc, Player.Pawn.Rotation);
         Player.ClientMessage("[CustomMaterialMutator]: spawning test actor at: " $ Loc);
     }
     else

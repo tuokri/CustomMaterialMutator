@@ -37,7 +37,7 @@ simulated function ApplyMaterials(optional int NumMappingsToApply = `MAX_MATERIA
         `cmmlog("setting MIC: " $ MIC $ " on: " $ MM.TargetComp $ " index: " $ MM.MaterialIndex);
         MM.TargetComp.SetMaterial(MM.MaterialIndex, MIC);
 
-        if (bReplicate)
+        if (bReplicate && MRI != None)
         {
             MRI.ReplicatedMaterialMappings[Idx].TargetComp = MM.TargetComp;
             MRI.ReplicatedMaterialMappings[Idx].MaterialIndex = MM.MaterialIndex;

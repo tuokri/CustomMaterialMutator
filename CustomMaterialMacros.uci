@@ -5,3 +5,4 @@
 
 // TODO: Do we need more?
 `define MAX_MATERIAL_MAPPINGS 8
+`define MAX_PRELOAD_LEVELS 16
