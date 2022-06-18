@@ -149,7 +149,7 @@ simulated function SpawnTestActor(PlayerController Player, string Type, optional
     `cmmlog("spawning test actor at " $ Loc);
     if (MaterialToApply != None)
     {
-        Player.ClientMessage("[HeloCombatMutator]: spawning test actor at: " $ Loc $ " with material: " $ MaterialToApply);
+        Player.ClientMessage("[CustomMaterialMutator]: spawning test actor at: " $ Loc $ " with material: " $ MaterialToApply);
     }
 
     if (Type == "static")
