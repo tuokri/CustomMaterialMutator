@@ -40,4 +40,8 @@ DefaultProperties
 
     bNoDelete=False
     LifeSpan=0
+
+    bGameRelevant=True
+    bUpdateSimulatedPosition=True
+    RemoteRole=ROLE_SimulatedProxy
 }
