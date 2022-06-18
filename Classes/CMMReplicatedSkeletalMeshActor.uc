@@ -5,7 +5,7 @@ var CMMCustomMaterialContainer CustomMaterialContainer;
 
 replication
 {
-    if (bNetDirty && Role==ROLE_Authority)
+    if (bNetDirty)
         MaterialReplicationInfo;
 }
 

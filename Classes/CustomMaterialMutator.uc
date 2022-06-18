@@ -33,7 +33,6 @@ function NotifyLogin(Controller NewPlayer)
 // Preload level(s) that contain custom materials.
 function PreloadLevels()
 {
-    `cmmlog("** ** ** ** ** ** ** ** ** ** ** ** **");
     DelayedPreloadLevels();
 }
 
@@ -161,8 +160,8 @@ function ROMutate(string MutateString, PlayerController Sender, out string Resul
                 CMMSkeletalTestActor(A).MaterialReplicationInfo.ReplCount = 1;
             }
 
-            // A.bNetDirty = True;
-            // A.bForceNetUpdate = True;
+            A.bNetDirty = True;
+            A.bForceNetUpdate = True;
         }
     }
     // romutate spawn2
@@ -220,8 +219,8 @@ simulated function SpawnTestActor(PlayerController Player, string Type, optional
 
     if (SpawnedActor != None)
     {
-        // SpawnedActor.bNetDirty = True;
-        // SpawnedActor.bForceNetUpdate = True;
+        SpawnedActor.bNetDirty = True;
+        SpawnedActor.bForceNetUpdate = True;
         TestActors.AddItem(SpawnedActor);
     }
 }
