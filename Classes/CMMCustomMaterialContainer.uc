@@ -1,4 +1,5 @@
-class CMMCustomMaterialContainer extends ActorComponent;
+class CMMCustomMaterialContainer extends ActorComponent
+    dependson(CMMMaterialReplicationInfo);
 
 struct MaterialMapping
 {
@@ -7,25 +8,41 @@ struct MaterialMapping
     var string MaterialName;
 };
 
-var array<MaterialMapping> MaterialMappings;
+var MaterialMapping MaterialMappings[`MAX_MATERIAL_MAPPINGS];
 
 // TODO: instead of calling DynamicLoadObject here, do the dynamic loading
 // at startup for all custom materials, then just fetch the reference to the
 // material here and apply it on the target mesh component.
-simulated function ApplyMaterials()
+simulated function ApplyMaterials(optional int NumMappingsToApply = `MAX_MATERIAL_MAPPINGS,
+    optional bool bReplicate = False, optional out CMMMaterialReplicationInfo MRI)
 {
     local MaterialMapping MM;
     local MaterialInstanceConstant MIC;
     local Material Mat;
+    local int Idx;
 
-    ForEach MaterialMappings(MM)
+    NumMappingsToApply = Clamp(NumMappingsToApply, 0, `MAX_MATERIAL_MAPPINGS);
+
+    for (Idx = 0; Idx < NumMappingsToApply; ++Idx)
     {
+        MM = MaterialMappings[Idx];
+        if (MM.TargetComp == None)
+        {
+            continue;
+        }
+
         Mat = Material(DynamicLoadObject(MM.MaterialName, class'Material'));
         MIC = new(self) class'MaterialInstanceConstant';
         MIC.SetParent(Mat);
         `cmmlog("setting MIC: " $ MIC $ " on: " $ MM.TargetComp $ " index: " $ MM.MaterialIndex);
         MM.TargetComp.SetMaterial(MM.MaterialIndex, MIC);
-        MM.TargetComp.Owner.bNetDirty = True;
+
+        if (bReplicate)
+        {
+            MRI.ReplicatedMaterialMappings[Idx].TargetComp = MM.TargetComp;
+            MRI.ReplicatedMaterialMappings[Idx].MaterialIndex = MM.MaterialIndex;
+            MRI.ReplicatedMaterialMappings[Idx].MaterialName = MM.MaterialName;
+        }
     }
 }
 

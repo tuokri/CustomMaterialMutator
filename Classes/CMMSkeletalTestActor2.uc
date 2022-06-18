@@ -1,12 +1,10 @@
-class CMMSkeletalTestActor2 extends SkeletalMeshActor;
-
-var CMMCustomMaterialContainer CustomMaterialContainer;
+class CMMSkeletalTestActor2 extends CMMReplicatedSkeletalMeshActor;
 
 event PreBeginPlay()
 {
     super.PreBeginPlay();
 
-    CustomMaterialContainer.ApplyMaterials();
+    CustomMaterialContainer.ApplyMaterials(1, True, MaterialReplicationInfo);
 }
 
 DefaultProperties
@@ -20,9 +18,9 @@ DefaultProperties
     Begin Object Name=SkeletalMeshComponent0
         SkeletalMesh=SkeletalMesh'CHR_VN_AUS_Heads.Mesh.AUS_Head10_Mesh'
         // Can't set this here because we get an external reference error on compilation.
-        // Materials(0)='VNTE-MaterialContainer.TestMat'
-        // Materials(1)='VNTE-MaterialContainer.TestMat1'
-        // Materials(2)='VNTE-MaterialContainer.TestMatasdasdasd'
+        // Materials(0)='VNTE-MaterialContainer2.TestMat'
+        // Materials(1)='VNTE-MaterialContainer2.TestMat1'
+        // Materials(2)='VNTE-MaterialContainer2.TestMatasdasdasd'
         Materials.Empty
         LightEnvironment=MyLightEnvironment
         bCastDynamicShadow=True
@@ -32,8 +30,8 @@ DefaultProperties
 
     Begin Object Class=CMMCustomMaterialContainer Name=CustomMaterialContainer0
         MaterialMappings(0)=(TargetComp=SkeletalMeshComponent0,MaterialIndex=0,MaterialName="VNTE-MaterialContainer2.TestMat")
-        // MaterialMappings(1)=(TargetComp=SkeletalMeshComponent0,MaterialIndex=1,MaterialName="VNTE-MaterialContainer.TestMat1")
-        // MaterialMappings(2)=(TargetComp=SkeletalMeshComponent0,MaterialIndex=2,MaterialName="VNTE-MaterialContainer.TestMatasdasdasd")
+        // MaterialMappings(1)=(TargetComp=SkeletalMeshComponent0,MaterialIndex=1,MaterialName="VNTE-MaterialContainer2.TestMat1")
+        // MaterialMappings(2)=(TargetComp=SkeletalMeshComponent0,MaterialIndex=2,MaterialName="VNTE-MaterialContainer2.TestMatasdasdasd")
     End Object
     CustomMaterialContainer=CustomMaterialContainer0
     Components.Add(CustomMaterialContainer0)

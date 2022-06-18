@@ -21,6 +21,8 @@ function NotifyLogin(Controller NewPlayer)
     ClientPreloadLevels(LevelsToPreload);
     ClientPreloadCustomMaterials();
 
+    `cmmlog(NewPlayer $ " logged in");
+
     super.NotifyLogin(NewPlayer);
 }
 
@@ -47,8 +49,8 @@ function DelayedPreloadCustomMaterials()
     local Material Mat;
     local ROMapInfo ROMI;
     local Actor A;
-    local CMMCustomMaterialContainer CMM;
-    local MaterialMapping MM;
+    local CMMCustomMaterialContainer CMC;
+    local int Idx;
 
     // Wait until PrepareMapChange() finishes (it's async)...
     if (WorldInfo.IsPreparingMapChange())
@@ -66,14 +68,17 @@ function DelayedPreloadCustomMaterials()
         // present in the level at the time of this call.
         ForEach WorldInfo.AllActors(class'Actor', A)
         {
-            ForEach A.ComponentList(class'CMMCustomMaterialContainer', CMM)
+            ForEach A.ComponentList(class'CMMCustomMaterialContainer', CMC)
             {
-                `cmmlog("preloading materials for " $ A $ " " $ CMM);
-                ForEach CMM.MaterialMappings(MM)
+                `cmmlog("preloading materials for " $ A $ " " $ CMC);
+                for (Idx = 0; Idx < `MAX_MATERIAL_MAPPINGS; Idx++)
                 {
-                    Mat = Material(DynamicLoadObject(MM.MaterialName, class'Material'));
-                    `cmmlog("preloaded " $ Mat);
-                    ROMI.SharedContentReferences.AddItem(Mat);
+                    if (CMC.MaterialMappings[Idx].MaterialName != "")
+                    {
+                        Mat = Material(DynamicLoadObject(CMC.MaterialMappings[Idx].MaterialName, class'Material'));
+                        `cmmlog("preloaded " $ Mat);
+                        ROMI.SharedContentReferences.AddItem(Mat);
+                    }
                 }
             }
         }
@@ -83,11 +88,13 @@ function DelayedPreloadCustomMaterials()
 reliable client function ClientPreloadCustomMaterials()
 {
     PreloadCustomMaterials();
+    `cmmlog("PreloadCustomMaterials done");
 }
 
 reliable client function ClientPreloadLevels(array<name> Levels)
 {
     PreLoadLevels(Levels);
+    `cmmlog("PreLoadLevels done");
 }
 
 function ROMutate(string MutateString, PlayerController Sender, out string ResultMsg)
@@ -96,6 +103,8 @@ function ROMutate(string MutateString, PlayerController Sender, out string Resul
     local Actor A;
     local Material Mat;
     local MaterialInstanceConstant MIC;
+    local string MatName;
+    local CMMReplicatedMaterialMapping ReplMM;
 
     Args = SplitString(MutateString);
 
@@ -105,16 +114,18 @@ function ROMutate(string MutateString, PlayerController Sender, out string Resul
     // romutate spawn,skeletal,PackageName.MaterialName
     if (Locs(Args[0]) == "spawn")
     {
-        Mat = Material(DynamicLoadObject(Args[2], class'Material'));
+        MatName = Args[2];
+        Mat = Material(DynamicLoadObject(MatName, class'Material'));
         MIC = new(self) class'MaterialInstanceConstant';
         MIC.SetParent(Mat);
-        SpawnTestActor(Sender, Locs(Args[1]), MIC);
+        SpawnTestActor(Sender, Locs(Args[1]), MIC, MatName);
     }
     // romutate setmat,VNTE-MaterialContainer.TestMat
     // romutate setmat,PackageName.MaterialName
     if (Locs(Args[0]) == "setmat")
     {
-        Mat = Material(DynamicLoadObject(Args[1], class'Material'));
+        MatName = Args[1];
+        Mat = Material(DynamicLoadObject(MatName, class'Material'));
         ForEach TestActors(A)
         {
             MIC = new(self) class'MaterialInstanceConstant';
@@ -124,13 +135,24 @@ function ROMutate(string MutateString, PlayerController Sender, out string Resul
             if (A.IsA('CMMStaticTestActor'))
             {
                 CMMStaticTestActor(A).StaticMeshComponent.SetMaterial(0, MIC);
+                ReplMM.TargetComp = CMMStaticTestActor(A).StaticMeshComponent;
+                ReplMM.MaterialIndex = 0;
+                ReplMM.MaterialName = MatName;
+                CMMStaticTestActor(A).MaterialReplicationInfo.ReplicatedMaterialMappings[0] = ReplMM;
+                CMMStaticTestActor(A).MaterialReplicationInfo.ReplCount = 1;
             }
             else if (A.IsA('CMMSkeletalTestActor'))
             {
                 CMMSkeletalTestActor(A).SkeletalMeshComponent.SetMaterial(0, MIC);
+                ReplMM.TargetComp = CMMSkeletalTestActor(A).SkeletalMeshComponent;
+                ReplMM.MaterialIndex = 0;
+                ReplMM.MaterialName = MatName;
+                CMMSkeletalTestActor(A).MaterialReplicationInfo.ReplicatedMaterialMappings[0] = ReplMM;
+                CMMSkeletalTestActor(A).MaterialReplicationInfo.ReplCount = 1;
             }
 
-            A.bNetDirty = True;
+            // A.bNetDirty = True;
+            // A.bForceNetUpdate = True;
         }
     }
     // romutate spawn2
@@ -142,8 +164,10 @@ function ROMutate(string MutateString, PlayerController Sender, out string Resul
     super.ROMutate(MutateString, Sender, ResultMsg);
 }
 
-simulated function SpawnTestActor(PlayerController Player, string Type, optional MaterialInstanceConstant MaterialToApply)
+simulated function SpawnTestActor(PlayerController Player, string Type, optional MaterialInstanceConstant MaterialToApply,
+    optional string ReplicatedMaterialName)
 {
+    local CMMReplicatedMaterialMapping ReplMM;
     local Actor SpawnedActor;
     local vector Loc;
 
@@ -156,17 +180,28 @@ simulated function SpawnTestActor(PlayerController Player, string Type, optional
 
     if (Type == "static")
     {
-        SpawnedActor = Spawn(class'CMMStaticTestActor', Self,, Loc, Player.Pawn.Rotation);
+        SpawnedActor = Spawn(class'CMMStaticTestActor', Player,, Loc, Player.Pawn.Rotation);
         CMMStaticTestActor(SpawnedActor).StaticMeshComponent.SetMaterial(0, MaterialToApply);
+        ReplMM.TargetComp = CMMStaticTestActor(SpawnedActor).StaticMeshComponent;
+        ReplMM.MaterialIndex = 0;
+        ReplMM.MaterialName = ReplicatedMaterialName;
+        CMMStaticTestActor(SpawnedActor).MaterialReplicationInfo.ReplicatedMaterialMappings[0] = ReplMM;
+        CMMStaticTestActor(SpawnedActor).MaterialReplicationInfo.ReplCount = 1;
     }
     else if (Type == "skeletal")
     {
-        SpawnedActor = Spawn(class'CMMSkeletalTestActor', Self,, Loc, Player.Pawn.Rotation);
+        SpawnedActor = Spawn(class'CMMSkeletalTestActor', Player,, Loc, Player.Pawn.Rotation);
         CMMSkeletalTestActor(SpawnedActor).SkeletalMeshComponent.SetMaterial(0, MaterialToApply);
+        ReplMM.TargetComp = CMMSkeletalTestActor(SpawnedActor).SkeletalMeshComponent;
+        ReplMM.MaterialIndex = 0;
+        ReplMM.MaterialName = ReplicatedMaterialName;
+        CMMSkeletalTestActor(SpawnedActor).MaterialReplicationInfo.ReplicatedMaterialMappings[0] = ReplMM;
+        CMMSkeletalTestActor(SpawnedActor).MaterialReplicationInfo.ReplCount = 1;
     }
     else if (Type == "nodynamicmaterial")
     {
-        SpawnedActor = Spawn(class'CMMSkeletalTestActor2', Self,, Loc, Player.Pawn.Rotation);
+        SpawnedActor = Spawn(class'CMMSkeletalTestActor2', Player,, Loc, Player.Pawn.Rotation);
+        Player.ClientMessage("[CustomMaterialMutator]: spawning test actor at: " $ Loc);
     }
     else
     {
@@ -175,7 +210,8 @@ simulated function SpawnTestActor(PlayerController Player, string Type, optional
 
     if (SpawnedActor != None)
     {
-        SpawnedActor.bNetDirty = True;
+        // SpawnedActor.bNetDirty = True;
+        // SpawnedActor.bForceNetUpdate = True;
         TestActors.AddItem(SpawnedActor);
     }
 }

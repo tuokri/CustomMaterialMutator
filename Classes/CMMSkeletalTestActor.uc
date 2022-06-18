@@ -1,4 +1,4 @@
-class CMMSkeletalTestActor extends SkeletalMeshActor;
+class CMMSkeletalTestActor extends CMMReplicatedSkeletalMeshActor;
 
 DefaultProperties
 {

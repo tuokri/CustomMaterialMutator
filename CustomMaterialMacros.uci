@@ -2,3 +2,6 @@
     `log(self.class.name $ "::" $ GetFuncName() $ "(): " $ `msg, \
     `cond, \
     `if(`tag), name("CustomMaterialMutator-" $ string(`tag))`else'CustomMaterialMutator'`endif)
+
+// TODO: Do we need more?
+`define MAX_MATERIAL_MAPPINGS 8

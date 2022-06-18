@@ -1,4 +1,4 @@
-class CMMStaticTestActor extends StaticMeshActor;
+class CMMStaticTestActor extends CMMReplicatedStaticMeshActor;
 
 DefaultProperties
 {
