@@ -10,6 +10,7 @@ DefaultProperties
 
     Begin Object Name=SkeletalMeshComponent0
         SkeletalMesh=SkeletalMesh'CHR_VN_AUS_Heads.Mesh.AUS_Head10_Mesh'
+        Materials.Empty
         LightEnvironment=MyLightEnvironment
         bCastDynamicShadow=True
         bAcceptsDynamicLights=True

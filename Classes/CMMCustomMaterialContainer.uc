@@ -25,6 +25,7 @@ simulated function ApplyMaterials()
         MIC.SetParent(Mat);
         `cmmlog("setting MIC: " $ MIC $ " on: " $ MM.TargetComp $ " index: " $ MM.MaterialIndex);
         MM.TargetComp.SetMaterial(MM.MaterialIndex, MIC);
+        MM.TargetComp.Owner.bNetDirty = True;
     }
 }
 

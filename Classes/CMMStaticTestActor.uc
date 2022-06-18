@@ -4,6 +4,7 @@ DefaultProperties
 {
     Begin Object Name=StaticMeshComponent0
         StaticMesh=StaticMesh'EngineMeshes.Sphere'
+        Materials.Empty
         CollideActors=False
         BlockActors=False
         BlockZeroExtent=False

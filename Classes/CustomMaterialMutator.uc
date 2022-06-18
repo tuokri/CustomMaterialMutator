@@ -129,6 +129,8 @@ function ROMutate(string MutateString, PlayerController Sender, out string Resul
             {
                 CMMSkeletalTestActor(A).SkeletalMeshComponent.SetMaterial(0, MIC);
             }
+
+            A.bNetDirty = True;
         }
     }
     // romutate spawn2
@@ -173,6 +175,7 @@ simulated function SpawnTestActor(PlayerController Player, string Type, optional
 
     if (SpawnedActor != None)
     {
+        SpawnedActor.bNetDirty = True;
         TestActors.AddItem(SpawnedActor);
     }
 }
