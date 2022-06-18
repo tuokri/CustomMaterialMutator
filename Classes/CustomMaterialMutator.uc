@@ -8,6 +8,8 @@ var array<Actor> TestActors;
 
 function PreBeginPlay()
 {
+    ROGameInfo(WorldInfo.Game).PlayerControllerClass = class'CMMPlayerController';
+
     PreloadLevels();
     PreloadCustomMaterials();
 
@@ -18,10 +20,10 @@ function PreBeginPlay()
 
 function NotifyLogin(Controller NewPlayer)
 {
-    PlayerController(NewPlayer).ClientMessage("Hello from CustomMaterialMutator");
+    // PlayerController(NewPlayer).ClientMessage("Hello from CustomMaterialMutator");
 
-    ClientPreloadLevels(NewPlayer);
-    ClientPreloadCustomMaterials(NewPlayer);
+    CMMPlayerController(NewPlayer).ClientPreloadLevels();
+    CMMPlayerController(NewPlayer).ClientPreloadCustomMaterials();
 
     `cmmlog(NewPlayer $ " logged in");
 
@@ -31,6 +33,7 @@ function NotifyLogin(Controller NewPlayer)
 // Preload level(s) that contain custom materials.
 function PreloadLevels()
 {
+    `cmmlog("** ** ** ** ** ** ** ** ** ** ** ** **");
     DelayedPreloadLevels();
 }
 
@@ -48,7 +51,10 @@ function DelayedPreloadLevels()
         for (Idx = 0; Idx < `MAX_PRELOAD_LEVELS; Idx++)
         {
             `cmmlog("Levels[" $ Idx $ "]: " $ LevelsToPreload[Idx]);
-            LevelsArr.AddItem(LevelsToPreload[Idx]);
+            if (LevelsToPreload[Idx] != '')
+            {
+                LevelsArr.AddItem(LevelsToPreload[Idx]);
+            }
         }
         WorldInfo.PrepareMapChange(LevelsArr);
     }
@@ -99,20 +105,6 @@ function DelayedPreloadCustomMaterials()
             }
         }
     }
-}
-
-reliable client function ClientPreloadCustomMaterials(Controller C)
-{
-    `cmmlog("PreloadCustomMaterials starting on " $ C);
-    PreloadCustomMaterials();
-    `cmmlog("PreloadCustomMaterials done on " $ C);
-}
-
-reliable client function ClientPreloadLevels(Controller C)
-{
-    `cmmlog("PreLoadLevels starting on " $ C);
-    PreLoadLevels();
-    `cmmlog("PreLoadLevels done on " $ C);
 }
 
 function ROMutate(string MutateString, PlayerController Sender, out string ResultMsg)

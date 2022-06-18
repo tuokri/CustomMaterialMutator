@@ -1,13 +1,13 @@
 class CMMReplicatedStaticMeshActor extends StaticMeshActor;
 
-// replication
-// {
-//     if (bNetDirty && Role==ROLE_Authority)
-//         MaterialReplicationInfo;
-// }
-
 var repnotify CMMMaterialReplicationInfo MaterialReplicationInfo;
 var CMMCustomMaterialContainer CustomMaterialContainer;
+
+replication
+{
+    if (bNetDirty && Role==ROLE_Authority)
+        MaterialReplicationInfo;
+}
 
 simulated event ReplicatedEvent(name VarName)
 {
