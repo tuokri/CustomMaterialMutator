@@ -28,13 +28,11 @@ DefaultProperties
         CastShadow=True
     End Object
 
-    Begin Object Class=CMMCustomMaterialContainer Name=CustomMaterialContainer0
+    Begin Object Name=CustomMaterialContainer0
         MaterialMappings(0)=(TargetComp=SkeletalMeshComponent0,MaterialIndex=0,MaterialName="VNTE-MaterialContainer2.TestMat")
         // MaterialMappings(1)=(TargetComp=SkeletalMeshComponent0,MaterialIndex=1,MaterialName="VNTE-MaterialContainer2.TestMat1")
         // MaterialMappings(2)=(TargetComp=SkeletalMeshComponent0,MaterialIndex=2,MaterialName="VNTE-MaterialContainer2.TestMatasdasdasd")
     End Object
-    CustomMaterialContainer=CustomMaterialContainer0
-    Components.Add(CustomMaterialContainer0)
 
     bNoDelete=False
     LifeSpan=0

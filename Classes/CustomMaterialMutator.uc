@@ -135,9 +135,22 @@ function ROMutate(string MutateString, PlayerController Sender, out string Resul
     {
         MatName = Args[1];
         Mat = Material(DynamicLoadObject(MatName, class'Material'));
+
+        if (Mat == None)
+        {
+            `cmmlog("error, could not load material: " $ MatName);
+            return;
+        }
+
         ForEach TestActors(A)
         {
             MIC = new(self) class'MaterialInstanceConstant';
+            if (MIC == None)
+            {
+                `cmmlog("error, could not create MIC from " $ Mat);
+                return;
+            }
+
             MIC.SetParent(Mat);
             `cmmlog("setting " $ A $ " material to: " $ MIC);
 

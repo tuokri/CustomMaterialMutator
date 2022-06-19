@@ -12,6 +12,7 @@ replication
 simulated event PostBeginPlay()
 {
     local int Idx;
+    local int ReplCount;
 
     super.PostBeginPlay();
 
@@ -24,8 +25,10 @@ simulated event PostBeginPlay()
             MaterialReplicationInfo.ReplMatMappings[Idx].TargetComp = CustomMaterialContainer.MaterialMappings[Idx].TargetComp;
             MaterialReplicationInfo.ReplMatMappings[Idx].MaterialIndex = CustomMaterialContainer.MaterialMappings[Idx].MaterialIndex;
             MaterialReplicationInfo.ReplMatMappings[Idx].MaterialName = CustomMaterialContainer.MaterialMappings[Idx].MaterialName;
+            ReplCount++;
         }
     }
+    MaterialReplicationInfo.ReplCount = ReplCount;
 }
 
 simulated event ReplicatedEvent(name VarName)
@@ -55,4 +58,12 @@ simulated event ReplicatedEvent(name VarName)
     {
         Super.ReplicatedEvent(VarName);
     }
+}
+
+DefaultProperties
+{
+    Begin Object Class=CMMCustomMaterialContainer Name=CustomMaterialContainer0
+    End Object
+    CustomMaterialContainer=CustomMaterialContainer0
+    Components.Add(CustomMaterialContainer0)
 }
