@@ -142,6 +142,7 @@ reliable server function ServerSpawnTestActor(string Type, string MaterialName)
         ReplMM.MaterialName = MaterialName;
         CMMStaticTestActor(SpawnedActor).MaterialReplicationInfo.ReplMatMappings[0] = ReplMM;
         CMMStaticTestActor(SpawnedActor).MaterialReplicationInfo.ReplCount = 1;
+        CMMStaticTestActor(SpawnedActor).MaterialReplicationInfo.bNetDirty = True // TODO: This should be automatic?
     }
     else if (Type == "skeletal")
     {
@@ -152,6 +153,7 @@ reliable server function ServerSpawnTestActor(string Type, string MaterialName)
         ReplMM.MaterialName = MaterialName;
         CMMSkeletalTestActor(SpawnedActor).MaterialReplicationInfo.ReplMatMappings[0] = ReplMM;
         CMMSkeletalTestActor(SpawnedActor).MaterialReplicationInfo.ReplCount = 1;
+        CMMSkeletalTestActor(SpawnedActor).MaterialReplicationInfo.bNetDirty = True // TODO: This should be automatic?
     }
     else if (Type == "nodynamicmaterial")
     {

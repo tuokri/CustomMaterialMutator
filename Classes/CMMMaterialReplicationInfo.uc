@@ -14,7 +14,7 @@ var CMMReplicatedMaterialMapping ReplMatMappings[`MAX_MATERIAL_MAPPINGS];
 replication
 {
     if (bNetDirty)
-        ReplMatMappings;
+        ReplMatMappings, ReplCount;
 }
 
 DefaultProperties

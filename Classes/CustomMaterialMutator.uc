@@ -162,6 +162,7 @@ function ROMutate(string MutateString, PlayerController Sender, out string Resul
                 ReplMM.MaterialName = MatName;
                 CMMStaticTestActor(A).MaterialReplicationInfo.ReplMatMappings[0] = ReplMM;
                 CMMStaticTestActor(A).MaterialReplicationInfo.ReplCount = 1;
+                CMMStaticTestActor(A).MaterialReplicationInfo.bNetDirty = True; // TODO: this should happen automatically.
             }
             else if (A.IsA('CMMSkeletalTestActor'))
             {
@@ -171,6 +172,7 @@ function ROMutate(string MutateString, PlayerController Sender, out string Resul
                 ReplMM.MaterialName = MatName;
                 CMMSkeletalTestActor(A).MaterialReplicationInfo.ReplMatMappings[0] = ReplMM;
                 CMMSkeletalTestActor(A).MaterialReplicationInfo.ReplCount = 1;
+                CMMSkeletalTestActor(A).MaterialReplicationInfo.bNetDirty = True; // TODO: this should happen automatically.
             }
 
             A.ForceNetRelevant();
@@ -208,6 +210,7 @@ simulated function SpawnTestActor(PlayerController Player, string Type, optional
         ReplMM.MaterialName = ReplicatedMaterialName;
         CMMStaticTestActor(SpawnedActor).MaterialReplicationInfo.ReplMatMappings[0] = ReplMM;
         CMMStaticTestActor(SpawnedActor).MaterialReplicationInfo.ReplCount = 1;
+        CMMStaticTestActor(SpawnedActor).MaterialReplicationInfo.bNetDirty = True; // TODO: this should happen automatically.
     }
     else if (Type == "skeletal")
     {
@@ -218,6 +221,7 @@ simulated function SpawnTestActor(PlayerController Player, string Type, optional
         ReplMM.MaterialName = ReplicatedMaterialName;
         CMMSkeletalTestActor(SpawnedActor).MaterialReplicationInfo.ReplMatMappings[0] = ReplMM;
         CMMSkeletalTestActor(SpawnedActor).MaterialReplicationInfo.ReplCount = 1;
+        CMMSkeletalTestActor(SpawnedActor).MaterialReplicationInfo.bNetDirty = True; // TODO: this should happen automatically.
     }
     else if (Type == "nodynamicmaterial")
     {
