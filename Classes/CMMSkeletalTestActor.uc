@@ -19,6 +19,10 @@ DefaultProperties
     bNoDelete=False
     LifeSpan=0
 
+    Begin Object Name=CustomMaterialContainer0
+        MeshComponentMappings(0)=(TargetCompID=0,TargetComp=SkeletalMeshComponent0)
+    End Object
+
     bGameRelevant=True
     bUpdateSimulatedPosition=True
     RemoteRole=ROLE_SimulatedProxy

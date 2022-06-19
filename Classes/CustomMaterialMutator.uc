@@ -157,7 +157,8 @@ function ROMutate(string MutateString, PlayerController Sender, out string Resul
             if (A.IsA('CMMStaticTestActor'))
             {
                 CMMStaticTestActor(A).StaticMeshComponent.SetMaterial(0, MIC);
-                ReplMM.TargetComp = CMMStaticTestActor(A).StaticMeshComponent;
+                ReplMM.TargetCompID = CMMStaticTestActor(A).CustomMaterialContainer.GetTargetMeshComponentID(
+                    CMMStaticTestActor(A).StaticMeshComponent);
                 ReplMM.MaterialIndex = 0;
                 ReplMM.MaterialName = MatName;
                 CMMStaticTestActor(A).MaterialReplicationInfo.ReplMatMappings[0] = ReplMM;
@@ -167,7 +168,8 @@ function ROMutate(string MutateString, PlayerController Sender, out string Resul
             else if (A.IsA('CMMSkeletalTestActor'))
             {
                 CMMSkeletalTestActor(A).SkeletalMeshComponent.SetMaterial(0, MIC);
-                ReplMM.TargetComp = CMMSkeletalTestActor(A).SkeletalMeshComponent;
+                ReplMM.TargetCompID = CMMSkeletalTestActor(A).CustomMaterialContainer.GetTargetMeshComponentID(
+                    CMMSkeletalTestActor(A).SkeletalMeshComponent);
                 ReplMM.MaterialIndex = 0;
                 ReplMM.MaterialName = MatName;
                 CMMSkeletalTestActor(A).MaterialReplicationInfo.ReplMatMappings[0] = ReplMM;
@@ -194,7 +196,7 @@ simulated function SpawnTestActor(PlayerController Player, string Type, optional
     local Actor SpawnedActor;
     local vector Loc;
 
-    Loc = Player.Pawn.Location + (Normal(vector(Player.Pawn.Rotation)) * 100);
+    Loc = Player.Location + (Normal(vector(Player.Rotation)) * 100);
     `cmmlog("spawning test actor at " $ Loc);
     if (MaterialToApply != None)
     {
@@ -203,29 +205,31 @@ simulated function SpawnTestActor(PlayerController Player, string Type, optional
 
     if (Type == "static")
     {
-        SpawnedActor = Spawn(class'CMMStaticTestActor', Self,, Loc, Player.Pawn.Rotation);
+        SpawnedActor = Spawn(class'CMMStaticTestActor', Player,, Loc, Player.Rotation);
         CMMStaticTestActor(SpawnedActor).StaticMeshComponent.SetMaterial(0, MaterialToApply);
-        ReplMM.TargetComp = CMMStaticTestActor(SpawnedActor).StaticMeshComponent;
+        ReplMM.TargetCompID = CMMStaticTestActor(SpawnedActor).CustomMaterialContainer.GetTargetMeshComponentID(
+            CMMStaticTestActor(SpawnedActor).StaticMeshComponent);
         ReplMM.MaterialIndex = 0;
         ReplMM.MaterialName = ReplicatedMaterialName;
         CMMStaticTestActor(SpawnedActor).MaterialReplicationInfo.ReplMatMappings[0] = ReplMM;
         CMMStaticTestActor(SpawnedActor).MaterialReplicationInfo.ReplCount = 1;
-        CMMStaticTestActor(SpawnedActor).MaterialReplicationInfo.bNetDirty = True; // TODO: this should happen automatically.
+        CMMStaticTestActor(SpawnedActor).MaterialReplicationInfo.bNetDirty = True; // TODO: This should be automatic?
     }
     else if (Type == "skeletal")
     {
-        SpawnedActor = Spawn(class'CMMSkeletalTestActor', Self,, Loc, Player.Pawn.Rotation);
+        SpawnedActor = Spawn(class'CMMSkeletalTestActor', Player,, Loc, Player.Rotation);
         CMMSkeletalTestActor(SpawnedActor).SkeletalMeshComponent.SetMaterial(0, MaterialToApply);
-        ReplMM.TargetComp = CMMSkeletalTestActor(SpawnedActor).SkeletalMeshComponent;
+        ReplMM.TargetCompID = CMMSkeletalTestActor(SpawnedActor).CustomMaterialContainer.GetTargetMeshComponentID(
+            CMMSkeletalTestActor(SpawnedActor).SkeletalMeshComponent);
         ReplMM.MaterialIndex = 0;
         ReplMM.MaterialName = ReplicatedMaterialName;
         CMMSkeletalTestActor(SpawnedActor).MaterialReplicationInfo.ReplMatMappings[0] = ReplMM;
         CMMSkeletalTestActor(SpawnedActor).MaterialReplicationInfo.ReplCount = 1;
-        CMMSkeletalTestActor(SpawnedActor).MaterialReplicationInfo.bNetDirty = True; // TODO: this should happen automatically.
+        CMMSkeletalTestActor(SpawnedActor).MaterialReplicationInfo.bNetDirty = True; // TODO: This should be automatic?
     }
     else if (Type == "nodynamicmaterial")
     {
-        SpawnedActor = Spawn(class'CMMSkeletalTestActor2', Self,, Loc, Player.Pawn.Rotation);
+        SpawnedActor = Spawn(class'CMMSkeletalTestActor2', Player,, Loc, Player.Rotation);
         Player.ClientMessage("[CustomMaterialMutator]: spawning test actor at: " $ Loc);
     }
     else

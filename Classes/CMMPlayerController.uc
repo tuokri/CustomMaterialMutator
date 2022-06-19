@@ -126,7 +126,7 @@ reliable server function ServerSpawnTestActor(string Type, string MaterialName)
     MIC = new(self) class'MaterialInstanceConstant';
     MIC.SetParent(Mat);
 
-    Loc = Pawn.Location + (Normal(vector(Pawn.Rotation)) * 100);
+    Loc = Location + (Normal(vector(Rotation)) * 100);
     `cmmlog("spawning test actor at " $ Loc);
     if (MIC != None)
     {
@@ -135,9 +135,10 @@ reliable server function ServerSpawnTestActor(string Type, string MaterialName)
 
     if (Type == "static")
     {
-        SpawnedActor = Spawn(class'CMMStaticTestActor', GetCMM(),, Loc, Pawn.Rotation);
+        SpawnedActor = Spawn(class'CMMStaticTestActor', GetCMM(),, Loc, Rotation);
         CMMStaticTestActor(SpawnedActor).StaticMeshComponent.SetMaterial(0, MIC);
-        ReplMM.TargetComp = CMMStaticTestActor(SpawnedActor).StaticMeshComponent;
+        ReplMM.TargetCompID = CMMStaticTestActor(SpawnedActor).CustomMaterialContainer.GetTargetMeshComponentID(
+            CMMStaticTestActor(SpawnedActor).StaticMeshComponent);
         ReplMM.MaterialIndex = 0;
         ReplMM.MaterialName = MaterialName;
         CMMStaticTestActor(SpawnedActor).MaterialReplicationInfo.ReplMatMappings[0] = ReplMM;
@@ -146,9 +147,10 @@ reliable server function ServerSpawnTestActor(string Type, string MaterialName)
     }
     else if (Type == "skeletal")
     {
-        SpawnedActor = Spawn(class'CMMSkeletalTestActor', GetCMM(),, Loc, Pawn.Rotation);
+        SpawnedActor = Spawn(class'CMMSkeletalTestActor', GetCMM(),, Loc, Rotation);
         CMMSkeletalTestActor(SpawnedActor).SkeletalMeshComponent.SetMaterial(0, MIC);
-        ReplMM.TargetComp = CMMSkeletalTestActor(SpawnedActor).SkeletalMeshComponent;
+        ReplMM.TargetCompID = CMMSkeletalTestActor(SpawnedActor).CustomMaterialContainer.GetTargetMeshComponentID(
+            CMMSkeletalTestActor(SpawnedActor).SkeletalMeshComponent);
         ReplMM.MaterialIndex = 0;
         ReplMM.MaterialName = MaterialName;
         CMMSkeletalTestActor(SpawnedActor).MaterialReplicationInfo.ReplMatMappings[0] = ReplMM;
@@ -157,7 +159,7 @@ reliable server function ServerSpawnTestActor(string Type, string MaterialName)
     }
     else if (Type == "nodynamicmaterial")
     {
-        SpawnedActor = Spawn(class'CMMSkeletalTestActor2', GetCMM(),, Loc, Pawn.Rotation);
+        SpawnedActor = Spawn(class'CMMSkeletalTestActor2', GetCMM(),, Loc, Rotation);
         ClientMessage("[CustomMaterialMutator]: spawning test actor at: " $ Loc);
     }
     else

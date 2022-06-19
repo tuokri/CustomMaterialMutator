@@ -12,7 +12,6 @@ replication
 simulated event PostBeginPlay()
 {
     local int Idx;
-    local int ReplCount;
 
     super.PostBeginPlay();
 
@@ -20,15 +19,19 @@ simulated event PostBeginPlay()
 
     for (Idx = 0; Idx < `MAX_MATERIAL_MAPPINGS; ++Idx)
     {
-        if (CustomMaterialContainer.MaterialMappings[Idx].TargetComp != None)
-        {
-            MaterialReplicationInfo.ReplMatMappings[Idx].TargetComp = CustomMaterialContainer.MaterialMappings[Idx].TargetComp;
-            MaterialReplicationInfo.ReplMatMappings[Idx].MaterialIndex = CustomMaterialContainer.MaterialMappings[Idx].MaterialIndex;
-            MaterialReplicationInfo.ReplMatMappings[Idx].MaterialName = CustomMaterialContainer.MaterialMappings[Idx].MaterialName;
-            ReplCount++;
-        }
+        MaterialReplicationInfo.ReplMatMappings[Idx].TargetCompID = CustomMaterialContainer.MaterialMappings[Idx].TargetCompID;
+        MaterialReplicationInfo.ReplMatMappings[Idx].MaterialIndex = CustomMaterialContainer.MaterialMappings[Idx].MaterialIndex;
+        MaterialReplicationInfo.ReplMatMappings[Idx].MaterialName = CustomMaterialContainer.MaterialMappings[Idx].MaterialName;
     }
-    MaterialReplicationInfo.ReplCount = ReplCount;
+    MaterialReplicationInfo.ReplCount = `MAX_MATERIAL_MAPPINGS;
+}
+
+simulated event Destroyed()
+{
+    super.Destroyed();
+
+    MaterialReplicationInfo.Destroy();
+    MaterialReplicationInfo = None;
 }
 
 simulated event ReplicatedEvent(name VarName)
@@ -43,11 +46,12 @@ simulated event ReplicatedEvent(name VarName)
 
         for (Idx = 0; Idx < MaterialReplicationInfo.ReplCount; ++Idx)
         {
-            `cmmlog("TargetComp = " $ MaterialReplicationInfo.ReplMatMappings[Idx].TargetComp);
+            `cmmlog("TargetComp    = " $ CustomMaterialContainer.GetTargetMeshComponent(MaterialReplicationInfo.ReplMatMappings[Idx].TargetCompID));
+            `cmmlog("TargetCompID  = " $ MaterialReplicationInfo.ReplMatMappings[Idx].TargetCompID);
             `cmmlog("MaterialIndex = " $ MaterialReplicationInfo.ReplMatMappings[Idx].MaterialIndex);
-            `cmmlog("MaterialName = " $ MaterialReplicationInfo.ReplMatMappings[Idx].MaterialName);
+            `cmmlog("MaterialName  = " $ MaterialReplicationInfo.ReplMatMappings[Idx].MaterialName);
 
-            CustomMaterialContainer.MaterialMappings[Idx].TargetComp = MaterialReplicationInfo.ReplMatMappings[Idx].TargetComp;
+            CustomMaterialContainer.MaterialMappings[Idx].TargetCompID = MaterialReplicationInfo.ReplMatMappings[Idx].TargetCompID;
             CustomMaterialContainer.MaterialMappings[Idx].MaterialIndex = MaterialReplicationInfo.ReplMatMappings[Idx].MaterialIndex;
             CustomMaterialContainer.MaterialMappings[Idx].MaterialName = MaterialReplicationInfo.ReplMatMappings[Idx].MaterialName;
         }

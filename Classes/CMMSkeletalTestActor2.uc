@@ -19,8 +19,7 @@ DefaultProperties
         SkeletalMesh=SkeletalMesh'CHR_VN_AUS_Heads.Mesh.AUS_Head10_Mesh'
         // Can't set this here because we get an external reference error on compilation.
         // Materials(0)='VNTE-MaterialContainer2.TestMat'
-        // Materials(1)='VNTE-MaterialContainer2.TestMat1'
-        // Materials(2)='VNTE-MaterialContainer2.TestMatasdasdasd'
+        // Materials(1)='VNTE-MaterialContainer2.BlinkingTestMat'
         Materials.Empty
         LightEnvironment=MyLightEnvironment
         bCastDynamicShadow=True
@@ -29,9 +28,11 @@ DefaultProperties
     End Object
 
     Begin Object Name=CustomMaterialContainer0
-        MaterialMappings(0)=(TargetComp=SkeletalMeshComponent0,MaterialIndex=0,MaterialName="VNTE-MaterialContainer2.TestMat")
-        // MaterialMappings(1)=(TargetComp=SkeletalMeshComponent0,MaterialIndex=1,MaterialName="VNTE-MaterialContainer2.TestMat1")
-        // MaterialMappings(2)=(TargetComp=SkeletalMeshComponent0,MaterialIndex=2,MaterialName="VNTE-MaterialContainer2.TestMatasdasdasd")
+        MaterialMappings(0)=(TargetCompID=0,MaterialIndex=0,MaterialName="VNTE-MaterialContainer2.TestMat")
+        // MaterialMappings(1)=(TargetCompID=0,MaterialIndex=1,MaterialName="VNTE-MaterialContainer2.BlinkingTestMat")
+
+        // This might seem weird but it's easier than trying replicate the object reference to TargetComp in MaterialMappings.
+        MeshComponentMappings(0)=(TargetCompID=0,TargetComp=SkeletalMeshComponent0)
     End Object
 
     bNoDelete=False
