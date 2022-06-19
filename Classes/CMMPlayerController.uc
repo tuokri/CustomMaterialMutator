@@ -126,7 +126,7 @@ reliable server function ServerSpawnTestActor(string Type, string MaterialName)
     MIC = new(self) class'MaterialInstanceConstant';
     MIC.SetParent(Mat);
 
-    Loc = Location + (Normal(vector(Rotation)) * 100);
+    Loc = Pawn.Location + (Normal(vector(Pawn.Rotation)) * 100);
     `cmmlog("spawning test actor at " $ Loc);
     if (MIC != None)
     {
@@ -135,7 +135,7 @@ reliable server function ServerSpawnTestActor(string Type, string MaterialName)
 
     if (Type == "static")
     {
-        SpawnedActor = Spawn(class'CMMStaticTestActor', GetCMM(),, Loc, Rotation);
+        SpawnedActor = Spawn(class'CMMStaticTestActor', GetCMM(),, Loc, Pawn.Rotation);
         CMMStaticTestActor(SpawnedActor).StaticMeshComponent.SetMaterial(0, MIC);
         ReplMM.TargetCompID = CMMStaticTestActor(SpawnedActor).CustomMaterialContainer.GetTargetMeshComponentID(
             CMMStaticTestActor(SpawnedActor).StaticMeshComponent);
@@ -147,7 +147,7 @@ reliable server function ServerSpawnTestActor(string Type, string MaterialName)
     }
     else if (Type == "skeletal")
     {
-        SpawnedActor = Spawn(class'CMMSkeletalTestActor', GetCMM(),, Loc, Rotation);
+        SpawnedActor = Spawn(class'CMMSkeletalTestActor', GetCMM(),, Loc, Pawn.Rotation);
         CMMSkeletalTestActor(SpawnedActor).SkeletalMeshComponent.SetMaterial(0, MIC);
         ReplMM.TargetCompID = CMMSkeletalTestActor(SpawnedActor).CustomMaterialContainer.GetTargetMeshComponentID(
             CMMSkeletalTestActor(SpawnedActor).SkeletalMeshComponent);
@@ -159,7 +159,7 @@ reliable server function ServerSpawnTestActor(string Type, string MaterialName)
     }
     else if (Type == "nodynamicmaterial")
     {
-        SpawnedActor = Spawn(class'CMMSkeletalTestActor2', GetCMM(),, Loc, Rotation);
+        SpawnedActor = Spawn(class'CMMSkeletalTestActor2', GetCMM(),, Loc, Pawn.Rotation);
         ClientMessage("[CustomMaterialMutator]: spawning test actor at: " $ Loc);
     }
     else

@@ -196,7 +196,7 @@ simulated function SpawnTestActor(PlayerController Player, string Type, optional
     local Actor SpawnedActor;
     local vector Loc;
 
-    Loc = Player.Location + (Normal(vector(Player.Rotation)) * 100);
+    Loc = Player.Pawn.Location + (Normal(vector(Player.Pawn.Rotation)) * 100);
     `cmmlog("spawning test actor at " $ Loc);
     if (MaterialToApply != None)
     {
@@ -205,7 +205,7 @@ simulated function SpawnTestActor(PlayerController Player, string Type, optional
 
     if (Type == "static")
     {
-        SpawnedActor = Spawn(class'CMMStaticTestActor', Player,, Loc, Player.Rotation);
+        SpawnedActor = Spawn(class'CMMStaticTestActor', Player,, Loc, Player.Pawn.Rotation);
         CMMStaticTestActor(SpawnedActor).StaticMeshComponent.SetMaterial(0, MaterialToApply);
         ReplMM.TargetCompID = CMMStaticTestActor(SpawnedActor).CustomMaterialContainer.GetTargetMeshComponentID(
             CMMStaticTestActor(SpawnedActor).StaticMeshComponent);
@@ -217,7 +217,7 @@ simulated function SpawnTestActor(PlayerController Player, string Type, optional
     }
     else if (Type == "skeletal")
     {
-        SpawnedActor = Spawn(class'CMMSkeletalTestActor', Player,, Loc, Player.Rotation);
+        SpawnedActor = Spawn(class'CMMSkeletalTestActor', Player,, Loc, Player.Pawn.Rotation);
         CMMSkeletalTestActor(SpawnedActor).SkeletalMeshComponent.SetMaterial(0, MaterialToApply);
         ReplMM.TargetCompID = CMMSkeletalTestActor(SpawnedActor).CustomMaterialContainer.GetTargetMeshComponentID(
             CMMSkeletalTestActor(SpawnedActor).SkeletalMeshComponent);
@@ -229,7 +229,7 @@ simulated function SpawnTestActor(PlayerController Player, string Type, optional
     }
     else if (Type == "nodynamicmaterial")
     {
-        SpawnedActor = Spawn(class'CMMSkeletalTestActor2', Player,, Loc, Player.Rotation);
+        SpawnedActor = Spawn(class'CMMSkeletalTestActor2', Player,, Loc, Player.Pawn.Rotation);
         Player.ClientMessage("[CustomMaterialMutator]: spawning test actor at: " $ Loc);
     }
     else

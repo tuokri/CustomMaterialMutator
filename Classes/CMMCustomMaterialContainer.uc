@@ -71,7 +71,7 @@ simulated function ApplyMaterials(optional int NumMappingsToApply = `MAX_MATERIA
         MM = MaterialMappings[Idx];
         TargetComp = GetTargetMeshComponent(MM.TargetCompID);
 
-        if (TargetComp == None)
+        if ((TargetComp == None) || MM.MaterialName == "")
         {
             continue;
         }
