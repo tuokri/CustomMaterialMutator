@@ -38,10 +38,10 @@ function DelayedPreloadLevels()
     {
         for (Idx = 0; Idx < `MAX_PRELOAD_LEVELS; Idx++)
         {
-            `cmmlog("Levels[" $ Idx $ "]: " $ GetCMM().LevelsToPreload[Idx]);
-            if (GetCMM().LevelsToPreload[Idx] != '')
+            `cmmlog("Levels[" $ Idx $ "]: " $ class'CustomMaterialMutator'.default.LevelsToPreload[Idx]);
+            if (class'CustomMaterialMutator'.default.LevelsToPreload[Idx] != '')
             {
-                LevelsArr.AddItem(GetCMM().LevelsToPreload[Idx]);
+                LevelsArr.AddItem(class'CustomMaterialMutator'.default.LevelsToPreload[Idx]);
             }
         }
         WorldInfo.PrepareMapChange(LevelsArr);
@@ -92,5 +92,66 @@ function DelayedPreloadCustomMaterials()
                 }
             }
         }
+    }
+}
+
+simulated exec function SpawnTestActor(string Type, string MaterialName)
+{
+    ServerSpawnTestActor(Type, MaterialName);
+}
+
+reliable server function ServerSpawnTestActor(string Type, string MaterialName)
+{
+    local CMMReplicatedMaterialMapping ReplMM;
+    local Actor SpawnedActor;
+    local vector Loc;
+    local Material Mat;
+    local MaterialInstanceConstant MIC;
+
+    Mat = Material(DynamicLoadObject(MaterialName, class'Material'));
+    MIC = new(self) class'MaterialInstanceConstant';
+    MIC.SetParent(Mat);
+
+    Loc = Pawn.Location + (Normal(vector(Pawn.Rotation)) * 100);
+    `cmmlog("spawning test actor at " $ Loc);
+    if (MIC != None)
+    {
+        ClientMessage("[CustomMaterialMutator]: spawning test actor at: " $ Loc $ " with material: " $ MIC);
+    }
+
+    if (Type == "static")
+    {
+        SpawnedActor = Spawn(class'CMMStaticTestActor', GetCMM(),, Loc, Pawn.Rotation);
+        CMMStaticTestActor(SpawnedActor).StaticMeshComponent.SetMaterial(0, MIC);
+        ReplMM.TargetComp = CMMStaticTestActor(SpawnedActor).StaticMeshComponent;
+        ReplMM.MaterialIndex = 0;
+        ReplMM.MaterialName = MaterialName;
+        CMMStaticTestActor(SpawnedActor).MaterialReplicationInfo.ReplMatMappings[0] = ReplMM;
+        CMMStaticTestActor(SpawnedActor).MaterialReplicationInfo.ReplCount = 1;
+    }
+    else if (Type == "skeletal")
+    {
+        SpawnedActor = Spawn(class'CMMSkeletalTestActor', GetCMM(),, Loc, Pawn.Rotation);
+        CMMSkeletalTestActor(SpawnedActor).SkeletalMeshComponent.SetMaterial(0, MIC);
+        ReplMM.TargetComp = CMMSkeletalTestActor(SpawnedActor).SkeletalMeshComponent;
+        ReplMM.MaterialIndex = 0;
+        ReplMM.MaterialName = MaterialName;
+        CMMSkeletalTestActor(SpawnedActor).MaterialReplicationInfo.ReplMatMappings[0] = ReplMM;
+        CMMSkeletalTestActor(SpawnedActor).MaterialReplicationInfo.ReplCount = 1;
+    }
+    else if (Type == "nodynamicmaterial")
+    {
+        SpawnedActor = Spawn(class'CMMSkeletalTestActor2', GetCMM(),, Loc, Pawn.Rotation);
+        ClientMessage("[CustomMaterialMutator]: spawning test actor at: " $ Loc);
+    }
+    else
+    {
+        `cmmlog("invalid type: " $ Type);
+    }
+
+    if (SpawnedActor != None)
+    {
+        SpawnedActor.ForceNetRelevant();
+        GetCMM().TestActors.AddItem(SpawnedActor);
     }
 }

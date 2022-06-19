@@ -23,6 +23,8 @@ simulated function ApplyMaterials(optional int NumMappingsToApply = `MAX_MATERIA
 
     NumMappingsToApply = Clamp(NumMappingsToApply, 0, `MAX_MATERIAL_MAPPINGS);
 
+    `cmmlog("NumMappingsToApply=" $ NumMappingsToApply $ " bReplicate=" $ bReplicate $ " MRI=" $ MRI);
+
     for (Idx = 0; Idx < NumMappingsToApply; ++Idx)
     {
         MM = MaterialMappings[Idx];
@@ -39,9 +41,9 @@ simulated function ApplyMaterials(optional int NumMappingsToApply = `MAX_MATERIA
 
         if (bReplicate && MRI != None)
         {
-            MRI.ReplicatedMaterialMappings[Idx].TargetComp = MM.TargetComp;
-            MRI.ReplicatedMaterialMappings[Idx].MaterialIndex = MM.MaterialIndex;
-            MRI.ReplicatedMaterialMappings[Idx].MaterialName = MM.MaterialName;
+            MRI.ReplMatMappings[Idx].TargetComp = MM.TargetComp;
+            MRI.ReplMatMappings[Idx].MaterialIndex = MM.MaterialIndex;
+            MRI.ReplMatMappings[Idx].MaterialName = MM.MaterialName;
         }
     }
 }

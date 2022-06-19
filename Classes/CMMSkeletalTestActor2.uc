@@ -1,8 +1,8 @@
 class CMMSkeletalTestActor2 extends CMMReplicatedSkeletalMeshActor;
 
-event PreBeginPlay()
+simulated event PostBeginPlay()
 {
-    super.PreBeginPlay();
+    super.PostBeginPlay();
 
     CustomMaterialContainer.ApplyMaterials(1, True, MaterialReplicationInfo);
 }

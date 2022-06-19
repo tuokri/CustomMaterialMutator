@@ -8,7 +8,7 @@ struct CMMReplicatedMaterialMapping
 };
 
 var byte ReplCount;
-var CMMReplicatedMaterialMapping ReplicatedMaterialMappings[`MAX_MATERIAL_MAPPINGS];
+var CMMReplicatedMaterialMapping ReplMatMappings[`MAX_MATERIAL_MAPPINGS];
 
 DefaultProperties
 {

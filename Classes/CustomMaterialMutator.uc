@@ -147,7 +147,7 @@ function ROMutate(string MutateString, PlayerController Sender, out string Resul
                 ReplMM.TargetComp = CMMStaticTestActor(A).StaticMeshComponent;
                 ReplMM.MaterialIndex = 0;
                 ReplMM.MaterialName = MatName;
-                CMMStaticTestActor(A).MaterialReplicationInfo.ReplicatedMaterialMappings[0] = ReplMM;
+                CMMStaticTestActor(A).MaterialReplicationInfo.ReplMatMappings[0] = ReplMM;
                 CMMStaticTestActor(A).MaterialReplicationInfo.ReplCount = 1;
             }
             else if (A.IsA('CMMSkeletalTestActor'))
@@ -156,12 +156,11 @@ function ROMutate(string MutateString, PlayerController Sender, out string Resul
                 ReplMM.TargetComp = CMMSkeletalTestActor(A).SkeletalMeshComponent;
                 ReplMM.MaterialIndex = 0;
                 ReplMM.MaterialName = MatName;
-                CMMSkeletalTestActor(A).MaterialReplicationInfo.ReplicatedMaterialMappings[0] = ReplMM;
+                CMMSkeletalTestActor(A).MaterialReplicationInfo.ReplMatMappings[0] = ReplMM;
                 CMMSkeletalTestActor(A).MaterialReplicationInfo.ReplCount = 1;
             }
 
-            A.bNetDirty = True;
-            A.bForceNetUpdate = True;
+            A.ForceNetRelevant();
         }
     }
     // romutate spawn2
@@ -194,7 +193,7 @@ simulated function SpawnTestActor(PlayerController Player, string Type, optional
         ReplMM.TargetComp = CMMStaticTestActor(SpawnedActor).StaticMeshComponent;
         ReplMM.MaterialIndex = 0;
         ReplMM.MaterialName = ReplicatedMaterialName;
-        CMMStaticTestActor(SpawnedActor).MaterialReplicationInfo.ReplicatedMaterialMappings[0] = ReplMM;
+        CMMStaticTestActor(SpawnedActor).MaterialReplicationInfo.ReplMatMappings[0] = ReplMM;
         CMMStaticTestActor(SpawnedActor).MaterialReplicationInfo.ReplCount = 1;
     }
     else if (Type == "skeletal")
@@ -204,7 +203,7 @@ simulated function SpawnTestActor(PlayerController Player, string Type, optional
         ReplMM.TargetComp = CMMSkeletalTestActor(SpawnedActor).SkeletalMeshComponent;
         ReplMM.MaterialIndex = 0;
         ReplMM.MaterialName = ReplicatedMaterialName;
-        CMMSkeletalTestActor(SpawnedActor).MaterialReplicationInfo.ReplicatedMaterialMappings[0] = ReplMM;
+        CMMSkeletalTestActor(SpawnedActor).MaterialReplicationInfo.ReplMatMappings[0] = ReplMM;
         CMMSkeletalTestActor(SpawnedActor).MaterialReplicationInfo.ReplCount = 1;
     }
     else if (Type == "nodynamicmaterial")
@@ -219,8 +218,7 @@ simulated function SpawnTestActor(PlayerController Player, string Type, optional
 
     if (SpawnedActor != None)
     {
-        SpawnedActor.bNetDirty = True;
-        SpawnedActor.bForceNetUpdate = True;
+        SpawnedActor.ForceNetRelevant();
         TestActors.AddItem(SpawnedActor);
     }
 }
