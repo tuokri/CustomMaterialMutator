@@ -1,5 +1,19 @@
 class CMMPlayerController extends ROPlayerController;
 
+// TODO: use this.
+var CMMMaterialCache CustomMaterialCache;
+
+simulated event PreBeginPlay()
+{
+    super.PreBeginPlay();
+
+    CustomMaterialCache = new(self) class'CMMMaterialCache';
+    if (CustomMaterialCache == None)
+    {
+        `cmmlog("** !ERROR! ** cannot create CMMMaterialCache: ");
+    }
+}
+
 simulated function CustomMaterialMutator GetCMM()
 {
     return CustomMaterialMutator(WorldInfo.Game.BaseMutator);
