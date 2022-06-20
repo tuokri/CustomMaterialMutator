@@ -22,6 +22,7 @@ DefaultProperties
         BlockZeroExtent=False
         BlockNonZeroExtent=False
         BlockRigidBody=False
+        LightEnvironment=MyLightEnvironment
     End Object
 
     Begin Object Name=CustomMaterialContainer0
