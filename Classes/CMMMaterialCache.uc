@@ -4,7 +4,8 @@ struct MatCacheEntry
 {
     // var int MaterialID; // TODO: Redundant? Just use array index instead?
     var string MaterialName;
-    var Material LoadedMaterial;
+    var MaterialInterface LoadedMaterial;
+    // var class<MaterialInterface> MaterialClass; // TODO: can we actually use this for anything? Some weird conditional casts?
 };
 
 // All custom master materials that should be loaded on startup.
@@ -14,7 +15,7 @@ var array<MatCacheEntry> CachedMats;
 
 function LoadMaterials()
 {
-    local Material LoadedMat;
+    local MaterialInterface LoadedMat;
     local int Idx;
     local int Count;
 
@@ -22,7 +23,8 @@ function LoadMaterials()
 
     for (Idx = 0; Idx < CachedMats.Length; ++Idx)
     {
-        LoadedMat = Material(DynamicLoadObject(CachedMats[Idx].MaterialName, class'Material'));
+        // LoadedMat = MaterialInterface(DynamicLoadObject(CachedMats[Idx].MaterialName, CachedMats[Idx].MaterialClass));
+        LoadedMat = MaterialInterface(DynamicLoadObject(CachedMats[Idx].MaterialName, class'MaterialInterface'));
         if (LoadedMat == None)
         {
             `cmmlog("** !ERROR! ** cannot load material: " $ CachedMats[Idx].MaterialName);
@@ -62,7 +64,7 @@ function string GetMaterialName(int MaterialID)
     return "";
 }
 
-function Material GetMaterialByID(int MaterialID)
+function MaterialInterface GetMaterialByID(int MaterialID)
 {
     if (MaterialID < CachedMats.Length)
     {
@@ -70,7 +72,7 @@ function Material GetMaterialByID(int MaterialID)
     }
 }
 
-function Material GetMaterialByName(string MaterialName)
+function MaterialInterface GetMaterialByName(string MaterialName)
 {
     local MatCacheEntry Entry;
 
@@ -78,13 +80,26 @@ function Material GetMaterialByName(string MaterialName)
     {
         if (Locs(Entry.MaterialName) == Locs(MaterialName))
         {
+
             return Entry.LoadedMaterial;
         }
     }
 }
 
+// function class<MaterialInterface> GetMaterialClassByID()
+// {
+
+// }
+
+// function class<MaterialInterface> GetMaterialClassByName()
+// {
+
+// }
+
 DefaultProperties
 {
     CachedMats(0)=(MaterialName="VNTE-MaterialContainer2.TestMat")
     CachedMats(1)=(MaterialName="VNTE-MaterialContainer2.BlinkingTestMat")
+    CachedMats(2)=(MaterialName="VNTE-MaterialContainer2.TestMatWithParams")
+    CachedMats(3)=(MaterialName="VNTE-MaterialContainer2.TestMIC")
 }

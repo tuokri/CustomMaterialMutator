@@ -57,7 +57,7 @@ simulated function ApplyMaterials(optional int NumMappingsToApply = `MAX_MATERIA
 {
     local MaterialMapping MM;
     local MaterialInstanceConstant MIC;
-    local Material Mat;
+    local MaterialInterface Mat;
     local int Idx;
     local MeshComponent TargetComp;
     local CMMMaterialCache MatCache;

@@ -128,7 +128,7 @@ function ROMutate(string MutateString, PlayerController Sender, out string Resul
 {
     local array<string> Args;
     local Actor A;
-    local Material Mat;
+    local MaterialInterface Mat;
     local MaterialInstanceConstant MIC;
     local string MatName;
     local CMMReplicatedMaterialMapping ReplMM;

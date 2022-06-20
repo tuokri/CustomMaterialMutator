@@ -139,7 +139,7 @@ reliable server function ServerSpawnTestActor(string Type, string MaterialName)
     local CMMReplicatedMaterialMapping ReplMM;
     local Actor SpawnedActor;
     local vector Loc;
-    local Material Mat;
+    local MaterialInterface Mat;
     local MaterialInstanceConstant MIC;
 
     Mat = GetMatCache().GetMaterialByName(MaterialName);
