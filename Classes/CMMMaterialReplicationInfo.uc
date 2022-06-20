@@ -2,12 +2,12 @@ class CMMMaterialReplicationInfo extends ReplicationInfo;
 
 struct CMMReplicatedMaterialMapping
 {
-    // MeshComponent ID to apply the material to. Refers to TargetCompID in MeshComponentMapping.
+    // MeshComponent ID to apply the material to. References TargetCompID in CMMCustomMaterialContainer::MeshComponentMappings.
     var byte TargetCompID;
-    // Material slot in TargetComp.
+    // Material slot in TargetComp mesh.
     var byte MaterialIndex;
-    // TODO: Optimize this to an int and get the name from CMMMaterialCache.
-    var string MaterialName;
+    // References index in CMMMaterialCache::CachedMats array.
+    var int MaterialID;
 };
 
 // Indicates how many ReplMatMappings entires were changed and should be applied after replication.

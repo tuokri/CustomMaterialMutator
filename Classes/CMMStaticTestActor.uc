@@ -1,7 +1,19 @@
 class CMMStaticTestActor extends CMMReplicatedStaticMeshActor;
 
+var DynamicLightEnvironmentComponent LightEnvironment;
+
 DefaultProperties
 {
+    Begin Object Class=DynamicLightEnvironmentComponent Name=MyLightEnvironment
+        bEnabled=True
+        TickGroup=TG_DuringAsyncWork
+        bSynthesizeSHLight=True
+        bIsCharacterLightEnvironment=True
+        bDynamic=True
+    End Object
+    Components.Add(MyLightEnvironment)
+    LightEnvironment=MyLightEnvironment
+
     Begin Object Name=StaticMeshComponent0
         StaticMesh=StaticMesh'EngineMeshes.Sphere'
         Materials.Empty

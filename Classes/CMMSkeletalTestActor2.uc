@@ -18,9 +18,8 @@ DefaultProperties
     Begin Object Name=SkeletalMeshComponent0
         SkeletalMesh=SkeletalMesh'CHR_VN_AUS_Heads.Mesh.AUS_Head10_Mesh'
         // Can't set this here because we get an external reference error on compilation.
-        // Materials(0)='VNTE-MaterialContainer2.TestMat'
-        // Materials(1)='VNTE-MaterialContainer2.BlinkingTestMat'
-        Materials.Empty
+        // Materials(0)=Material'VNTE-MaterialContainer2.TestMat'
+        // Materials(1)=Material'VNTE-MaterialContainer2.BlinkingTestMat'
         LightEnvironment=MyLightEnvironment
         bCastDynamicShadow=True
         bAcceptsDynamicLights=True

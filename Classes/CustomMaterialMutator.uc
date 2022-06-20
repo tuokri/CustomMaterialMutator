@@ -6,12 +6,25 @@ var name LevelsToPreload[`MAX_PRELOAD_LEVELS];
 
 var array<Actor> TestActors;
 
+// Server-side material cache.
+// TODO: would be simpler to have a single cache in GameInfo.
+var CMMMaterialCache MaterialCache;
+
 function PreBeginPlay()
 {
     ROGameInfo(WorldInfo.Game).PlayerControllerClass = class'CMMPlayerController';
 
     PreloadLevels();
     PreloadCustomMaterials();
+
+    if (WorldInfo.NetMode == NM_DedicatedServer)
+    {
+        MaterialCache = new(self) class'CMMMaterialCache';
+        if (MaterialCache == None)
+        {
+            `cmmlog("** !ERROR! ** cannot create CMMMaterialCache: ");
+        }
+    }
 
     super.PreBeginPlay();
 
@@ -67,11 +80,11 @@ function PreloadCustomMaterials()
 
 function DelayedPreloadCustomMaterials()
 {
-    local Material Mat;
-    local ROMapInfo ROMI;
-    local Actor A;
-    local CMMCustomMaterialContainer CMC;
-    local int Idx;
+    // local Material Mat;
+    // local ROMapInfo ROMI;
+    // local Actor A;
+    // local CMMCustomMaterialContainer CMC;
+    // local int Idx;
 
     // Wait until PrepareMapChange() finishes (it's async)...
     if (WorldInfo.IsPreparingMapChange())
@@ -80,8 +93,11 @@ function DelayedPreloadCustomMaterials()
     }
     else
     {
-        ROMI = ROMapInfo(WorldInfo.GetMapInfo());
+        // ROMI = ROMapInfo(WorldInfo.GetMapInfo());
 
+        MaterialCache.LoadMaterials();
+
+        /*
         // TODO:
         // Yikes, triple nested loop... Try to find a better way of doing this.
         // Predefined hard-coded list of materials to preload?
@@ -103,9 +119,11 @@ function DelayedPreloadCustomMaterials()
                 }
             }
         }
+        */
     }
 }
 
+// Debug commands for spawning test actors.
 function ROMutate(string MutateString, PlayerController Sender, out string ResultMsg)
 {
     local array<string> Args;
@@ -124,7 +142,7 @@ function ROMutate(string MutateString, PlayerController Sender, out string Resul
     if (Locs(Args[0]) == "spawn")
     {
         MatName = Args[2];
-        Mat = Material(DynamicLoadObject(MatName, class'Material'));
+        Mat = MaterialCache.GetMaterialByName(MatName);
         MIC = new(self) class'MaterialInstanceConstant';
         MIC.SetParent(Mat);
         SpawnTestActor(Sender, Locs(Args[1]), MIC, MatName);
@@ -134,7 +152,7 @@ function ROMutate(string MutateString, PlayerController Sender, out string Resul
     if (Locs(Args[0]) == "setmat")
     {
         MatName = Args[1];
-        Mat = Material(DynamicLoadObject(MatName, class'Material'));
+        Mat = MaterialCache.GetMaterialByName(MatName);
 
         if (Mat == None)
         {
@@ -154,24 +172,24 @@ function ROMutate(string MutateString, PlayerController Sender, out string Resul
             MIC.SetParent(Mat);
             `cmmlog("setting " $ A $ " material to: " $ MIC);
 
-            if (A.IsA('CMMStaticTestActor'))
+            if (CMMStaticTestActor(A) != None)
             {
                 CMMStaticTestActor(A).StaticMeshComponent.SetMaterial(0, MIC);
                 ReplMM.TargetCompID = CMMStaticTestActor(A).CustomMaterialContainer.GetTargetMeshComponentID(
                     CMMStaticTestActor(A).StaticMeshComponent);
                 ReplMM.MaterialIndex = 0;
-                ReplMM.MaterialName = MatName;
+                ReplMM.MaterialID = MaterialCache.GetMaterialID(MatName);
                 CMMStaticTestActor(A).MaterialReplicationInfo.ReplMatMappings[0] = ReplMM;
                 CMMStaticTestActor(A).MaterialReplicationInfo.ReplCount = 1;
                 CMMStaticTestActor(A).MaterialReplicationInfo.bNetDirty = True; // TODO: this should happen automatically.
             }
-            else if (A.IsA('CMMSkeletalTestActor'))
+            else if (CMMSkeletalTestActor(A) != None)
             {
                 CMMSkeletalTestActor(A).SkeletalMeshComponent.SetMaterial(0, MIC);
                 ReplMM.TargetCompID = CMMSkeletalTestActor(A).CustomMaterialContainer.GetTargetMeshComponentID(
                     CMMSkeletalTestActor(A).SkeletalMeshComponent);
                 ReplMM.MaterialIndex = 0;
-                ReplMM.MaterialName = MatName;
+                ReplMM.MaterialID = MaterialCache.GetMaterialID(MatName);
                 CMMSkeletalTestActor(A).MaterialReplicationInfo.ReplMatMappings[0] = ReplMM;
                 CMMSkeletalTestActor(A).MaterialReplicationInfo.ReplCount = 1;
                 CMMSkeletalTestActor(A).MaterialReplicationInfo.bNetDirty = True; // TODO: this should happen automatically.
@@ -190,7 +208,7 @@ function ROMutate(string MutateString, PlayerController Sender, out string Resul
 }
 
 simulated function SpawnTestActor(PlayerController Player, string Type, optional MaterialInstanceConstant MaterialToApply,
-    optional string ReplicatedMaterialName)
+    optional string MaterialName)
 {
     local CMMReplicatedMaterialMapping ReplMM;
     local Actor SpawnedActor;
@@ -210,7 +228,7 @@ simulated function SpawnTestActor(PlayerController Player, string Type, optional
         ReplMM.TargetCompID = CMMStaticTestActor(SpawnedActor).CustomMaterialContainer.GetTargetMeshComponentID(
             CMMStaticTestActor(SpawnedActor).StaticMeshComponent);
         ReplMM.MaterialIndex = 0;
-        ReplMM.MaterialName = ReplicatedMaterialName;
+        ReplMM.MaterialID = MaterialCache.GetMaterialID(MaterialName);
         CMMStaticTestActor(SpawnedActor).MaterialReplicationInfo.ReplMatMappings[0] = ReplMM;
         CMMStaticTestActor(SpawnedActor).MaterialReplicationInfo.ReplCount = 1;
         CMMStaticTestActor(SpawnedActor).MaterialReplicationInfo.bNetDirty = True; // TODO: This should be automatic?
@@ -222,7 +240,7 @@ simulated function SpawnTestActor(PlayerController Player, string Type, optional
         ReplMM.TargetCompID = CMMSkeletalTestActor(SpawnedActor).CustomMaterialContainer.GetTargetMeshComponentID(
             CMMSkeletalTestActor(SpawnedActor).SkeletalMeshComponent);
         ReplMM.MaterialIndex = 0;
-        ReplMM.MaterialName = ReplicatedMaterialName;
+        ReplMM.MaterialID = MaterialCache.GetMaterialID(MaterialName);
         CMMSkeletalTestActor(SpawnedActor).MaterialReplicationInfo.ReplMatMappings[0] = ReplMM;
         CMMSkeletalTestActor(SpawnedActor).MaterialReplicationInfo.ReplCount = 1;
         CMMSkeletalTestActor(SpawnedActor).MaterialReplicationInfo.bNetDirty = True; // TODO: This should be automatic?

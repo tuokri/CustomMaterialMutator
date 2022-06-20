@@ -10,17 +10,19 @@ struct MeshComponentMapping
 struct MaterialMapping
 {
     // Used to resolve target MeshComponent from MeshComponentMapping.TargetCompID.
-    var byte TargetCompID;
+    var int TargetCompID;
     // Material slot in the target MeshComponent.
-    var int MaterialIndex;
+    var byte MaterialIndex;
     // Full name of the material.
     var string MaterialName;
+    // References index in CMMMaterialCache::CachedMats array.
+    var int MaterialID;
 };
 
 var MaterialMapping MaterialMappings[`MAX_MATERIAL_MAPPINGS];
 var array<MeshComponentMapping> MeshComponentMappings;
 
-function MeshComponent GetTargetMeshComponent(byte MeshCompID)
+function MeshComponent GetTargetMeshComponent(int MeshCompID)
 {
     local MeshComponentMapping MCMEntry;
 
@@ -35,7 +37,7 @@ function MeshComponent GetTargetMeshComponent(byte MeshCompID)
     return None;
 }
 
-function byte GetTargetMeshComponentID(MeshComponent MeshComp)
+function int GetTargetMeshComponentID(MeshComponent MeshComp)
 {
     local MeshComponentMapping MCMEntry;
 
@@ -50,21 +52,23 @@ function byte GetTargetMeshComponentID(MeshComponent MeshComp)
     return -1;
 }
 
-// TODO: instead of calling DynamicLoadObject here, do the dynamic loading
-// at startup for all custom materials, then just fetch the reference to the
-// material here and apply it on the target mesh component.
 simulated function ApplyMaterials(optional int NumMappingsToApply = `MAX_MATERIAL_MAPPINGS,
-    optional bool bReplicate = False, optional out CMMMaterialReplicationInfo MRI)
+    optional bool bReplicate = False, optional out CMMMaterialReplicationInfo RepliateToMRI)
 {
     local MaterialMapping MM;
     local MaterialInstanceConstant MIC;
     local Material Mat;
     local int Idx;
     local MeshComponent TargetComp;
+    local CMMMaterialCache MatCache;
 
     NumMappingsToApply = Clamp(NumMappingsToApply, 0, `MAX_MATERIAL_MAPPINGS);
 
-    `cmmlog("NumMappingsToApply=" $ NumMappingsToApply $ " bReplicate=" $ bReplicate $ " MRI=" $ MRI);
+    `cmmlog("NumMappingsToApply=" $ NumMappingsToApply $ " bReplicate=" $ bReplicate $ " RepliateToMRI=" $ RepliateToMRI);
+
+    MatCache = CMMPlayerController(Owner.GetALocalPlayerController()).GetMatCache();
+
+    `cmmlog("MatCache = " $ MatCache);
 
     for (Idx = 0; Idx < NumMappingsToApply; ++Idx)
     {
@@ -76,17 +80,17 @@ simulated function ApplyMaterials(optional int NumMappingsToApply = `MAX_MATERIA
             continue;
         }
 
-        Mat = Material(DynamicLoadObject(MM.MaterialName, class'Material'));
+        Mat = MatCache.GetMaterialByID(MM.MaterialID);
         MIC = new(self) class'MaterialInstanceConstant';
         MIC.SetParent(Mat);
-        `cmmlog("setting MIC: " $ MIC $ " on: " $ TargetComp $ " index: " $ MM.MaterialIndex);
+        `cmmlog("setting MIC: " $ MIC $ " on: " $ TargetComp $ " index: " $ MM.MaterialIndex $ " MaterialName: " $ MM.MaterialName);
         TargetComp.SetMaterial(MM.MaterialIndex, MIC);
 
-        if (bReplicate && (MRI != None))
+        if (bReplicate && (RepliateToMRI != None))
         {
-            MRI.ReplMatMappings[Idx].TargetCompID = MM.TargetCompID;
-            MRI.ReplMatMappings[Idx].MaterialIndex = MM.MaterialIndex;
-            MRI.ReplMatMappings[Idx].MaterialName = MM.MaterialName;
+            RepliateToMRI.ReplMatMappings[Idx].TargetCompID = MM.TargetCompID;
+            RepliateToMRI.ReplMatMappings[Idx].MaterialIndex = MM.MaterialIndex;
+            RepliateToMRI.ReplMatMappings[Idx].MaterialID = MM.MaterialID;
         }
     }
 }

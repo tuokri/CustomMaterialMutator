@@ -12,11 +12,13 @@ struct MatCacheEntry
 // TODO: We could also do an alphabetically sorted list and optimize the search based on that.
 var array<MatCacheEntry> CachedMats;
 
-// TODO: Consider if we should do PrepareMapChange here.
 function LoadMaterials()
 {
     local Material LoadedMat;
     local int Idx;
+    local int Count;
+
+    `cmmlog("loading custom materials...");
 
     for (Idx = 0; Idx < CachedMats.Length; ++Idx)
     {
@@ -26,9 +28,14 @@ function LoadMaterials()
             `cmmlog("** !ERROR! ** cannot load material: " $ CachedMats[Idx].MaterialName);
             continue;
         }
+
         CachedMats[Idx].LoadedMaterial = LoadedMat;
         // CachedMats[Idx].MaterialID = Idx;
+        Count++;
+        `cmmlog("loaded " $ LoadedMat @ CachedMats[Idx].MaterialName);
     }
+
+    `cmmlog("loaded " $ Count $ " custom materials");
 }
 
 function int GetMaterialID(string MaterialName)
@@ -53,6 +60,27 @@ function string GetMaterialName(int MaterialID)
         return CachedMats[MaterialID].MaterialName;
     }
     return "";
+}
+
+function Material GetMaterialByID(int MaterialID)
+{
+    if (MaterialID < CachedMats.Length)
+    {
+        return CachedMats[MaterialID].LoadedMaterial;
+    }
+}
+
+function Material GetMaterialByName(string MaterialName)
+{
+    local MatCacheEntry Entry;
+
+    ForEach CachedMats(Entry)
+    {
+        if (Locs(Entry.MaterialName) == Locs(MaterialName))
+        {
+            return Entry.LoadedMaterial;
+        }
+    }
 }
 
 DefaultProperties

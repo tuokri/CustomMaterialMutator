@@ -12,6 +12,7 @@ replication
 simulated event PostBeginPlay()
 {
     local int Idx;
+    local int MaterialID;
 
     super.PostBeginPlay();
 
@@ -21,7 +22,8 @@ simulated event PostBeginPlay()
     {
         MaterialReplicationInfo.ReplMatMappings[Idx].TargetCompID = CustomMaterialContainer.MaterialMappings[Idx].TargetCompID;
         MaterialReplicationInfo.ReplMatMappings[Idx].MaterialIndex = CustomMaterialContainer.MaterialMappings[Idx].MaterialIndex;
-        MaterialReplicationInfo.ReplMatMappings[Idx].MaterialName = CustomMaterialContainer.MaterialMappings[Idx].MaterialName;
+        MaterialID = CMMPlayerController(GetALocalPlayerController()).GetMatCache().GetMaterialID(CustomMaterialContainer.MaterialMappings[Idx].MaterialName);
+        MaterialReplicationInfo.ReplMatMappings[Idx].MaterialID = MaterialID;
     }
     MaterialReplicationInfo.ReplCount = `MAX_MATERIAL_MAPPINGS;
 }
@@ -38,7 +40,7 @@ simulated event ReplicatedEvent(name VarName)
 {
     local int Idx;
 
-    `cmmlog("VarName = " $ VarName);
+    // `cmmlog("VarName = " $ VarName);
 
     if (VarName == 'MaterialReplicationInfo')
     {
@@ -49,11 +51,17 @@ simulated event ReplicatedEvent(name VarName)
             `cmmlog("TargetComp    = " $ CustomMaterialContainer.GetTargetMeshComponent(MaterialReplicationInfo.ReplMatMappings[Idx].TargetCompID));
             `cmmlog("TargetCompID  = " $ MaterialReplicationInfo.ReplMatMappings[Idx].TargetCompID);
             `cmmlog("MaterialIndex = " $ MaterialReplicationInfo.ReplMatMappings[Idx].MaterialIndex);
-            `cmmlog("MaterialName  = " $ MaterialReplicationInfo.ReplMatMappings[Idx].MaterialName);
+            `cmmlog("MaterialID    = " $ MaterialReplicationInfo.ReplMatMappings[Idx].MaterialID);
+            `cmmlog("MaterialName  = " $ CMMPlayerController(
+                GetALocalPlayerController()).GetMatCache().GetMaterialName(
+                MaterialReplicationInfo.ReplMatMappings[Idx].MaterialID));
 
             CustomMaterialContainer.MaterialMappings[Idx].TargetCompID = MaterialReplicationInfo.ReplMatMappings[Idx].TargetCompID;
             CustomMaterialContainer.MaterialMappings[Idx].MaterialIndex = MaterialReplicationInfo.ReplMatMappings[Idx].MaterialIndex;
-            CustomMaterialContainer.MaterialMappings[Idx].MaterialName = MaterialReplicationInfo.ReplMatMappings[Idx].MaterialName;
+            CustomMaterialContainer.MaterialMappings[Idx].MaterialID = MaterialReplicationInfo.ReplMatMappings[Idx].MaterialID;
+            CustomMaterialContainer.MaterialMappings[Idx].MaterialName = CMMPlayerController(
+                GetALocalPlayerController()).GetMatCache().GetMaterialName(
+                MaterialReplicationInfo.ReplMatMappings[Idx].MaterialID);
         }
 
         CustomMaterialContainer.ApplyMaterials(MaterialReplicationInfo.ReplCount, False);

@@ -3,6 +3,7 @@
     `cond, \
     `if(`tag), name("CustomMaterialMutator-" $ string(`tag))`else'CustomMaterialMutator'`endif)
 
-// TODO: Do we need more?
+// TODO: Do we need more? Limited for replication optimization.
 `define MAX_MATERIAL_MAPPINGS 8
+// Max amount of "material container" levels to load.
 `define MAX_PRELOAD_LEVELS 16

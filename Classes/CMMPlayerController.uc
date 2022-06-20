@@ -1,16 +1,32 @@
 class CMMPlayerController extends ROPlayerController;
 
-// TODO: use this.
+// Client-side material cache.
+// TODO: would be simpler to have a single cache in GameInfo.
 var CMMMaterialCache CustomMaterialCache;
+
+function CMMMaterialCache GetMatCache()
+{
+    if (WorldInfo.NetMode == NM_DedicatedServer)
+    {
+        return GetCMM().MaterialCache;
+    }
+    else
+    {
+        return CustomMaterialCache;
+    }
+}
 
 simulated event PreBeginPlay()
 {
     super.PreBeginPlay();
 
-    CustomMaterialCache = new(self) class'CMMMaterialCache';
-    if (CustomMaterialCache == None)
+    if (WorldInfo.NetMode == NM_Client || WorldInfo.NetMode == NM_Standalone)
     {
-        `cmmlog("** !ERROR! ** cannot create CMMMaterialCache: ");
+        CustomMaterialCache = new(self) class'CMMMaterialCache';
+        if (CustomMaterialCache == None)
+        {
+            `cmmlog("** !ERROR! ** cannot create CMMMaterialCache: ");
+        }
     }
 }
 
@@ -70,11 +86,11 @@ function PreloadCustomMaterials()
 
 function DelayedPreloadCustomMaterials()
 {
-    local Material Mat;
-    local ROMapInfo ROMI;
-    local Actor A;
-    local CMMCustomMaterialContainer CMC;
-    local int Idx;
+    // local Material Mat;
+    // local ROMapInfo ROMI;
+    // local Actor A;
+    // local CMMCustomMaterialContainer CMC;
+    // local int Idx;
 
     // Wait until PrepareMapChange() finishes (it's async)...
     if (WorldInfo.IsPreparingMapChange())
@@ -83,6 +99,9 @@ function DelayedPreloadCustomMaterials()
     }
     else
     {
+        CustomMaterialCache.LoadMaterials();
+
+        /*
         ROMI = ROMapInfo(WorldInfo.GetMapInfo());
 
         // TODO:
@@ -106,6 +125,7 @@ function DelayedPreloadCustomMaterials()
                 }
             }
         }
+        */
     }
 }
 
@@ -122,7 +142,7 @@ reliable server function ServerSpawnTestActor(string Type, string MaterialName)
     local Material Mat;
     local MaterialInstanceConstant MIC;
 
-    Mat = Material(DynamicLoadObject(MaterialName, class'Material'));
+    Mat = GetMatCache().GetMaterialByName(MaterialName);
     MIC = new(self) class'MaterialInstanceConstant';
     MIC.SetParent(Mat);
 
@@ -140,7 +160,7 @@ reliable server function ServerSpawnTestActor(string Type, string MaterialName)
         ReplMM.TargetCompID = CMMStaticTestActor(SpawnedActor).CustomMaterialContainer.GetTargetMeshComponentID(
             CMMStaticTestActor(SpawnedActor).StaticMeshComponent);
         ReplMM.MaterialIndex = 0;
-        ReplMM.MaterialName = MaterialName;
+        ReplMM.MaterialID = GetMatCache().GetMaterialID(MaterialName);
         CMMStaticTestActor(SpawnedActor).MaterialReplicationInfo.ReplMatMappings[0] = ReplMM;
         CMMStaticTestActor(SpawnedActor).MaterialReplicationInfo.ReplCount = 1;
         CMMStaticTestActor(SpawnedActor).MaterialReplicationInfo.bNetDirty = True; // TODO: This should be automatic?
@@ -152,7 +172,7 @@ reliable server function ServerSpawnTestActor(string Type, string MaterialName)
         ReplMM.TargetCompID = CMMSkeletalTestActor(SpawnedActor).CustomMaterialContainer.GetTargetMeshComponentID(
             CMMSkeletalTestActor(SpawnedActor).SkeletalMeshComponent);
         ReplMM.MaterialIndex = 0;
-        ReplMM.MaterialName = MaterialName;
+        ReplMM.MaterialID = GetMatCache().GetMaterialID(MaterialName);
         CMMSkeletalTestActor(SpawnedActor).MaterialReplicationInfo.ReplMatMappings[0] = ReplMM;
         CMMSkeletalTestActor(SpawnedActor).MaterialReplicationInfo.ReplCount = 1;
         CMMSkeletalTestActor(SpawnedActor).MaterialReplicationInfo.bNetDirty = True; // TODO: This should be automatic?
