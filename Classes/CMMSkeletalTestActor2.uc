@@ -1,12 +1,5 @@
 class CMMSkeletalTestActor2 extends CMMReplicatedSkeletalMeshActor;
 
-simulated event PostBeginPlay()
-{
-    super.PostBeginPlay();
-
-    CustomMaterialContainer.ApplyMaterials(1, True, MaterialReplicationInfo);
-}
-
 DefaultProperties
 {
     Begin Object Name=MyLightEnvironment
