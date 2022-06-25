@@ -53,7 +53,7 @@ function int GetTargetMeshComponentID(MeshComponent MeshComp)
 }
 
 simulated function ApplyMaterials(optional int NumMappingsToApply = `MAX_MATERIAL_MAPPINGS,
-    optional bool bReplicate = False, optional out CMMMaterialReplicationInfo RepliateToMRI)
+    optional bool bReplicate = False, optional out CMMMaterialReplicationInfo ReplicateToMRI)
 {
     local MaterialMapping MM;
     local MaterialInstanceConstant MIC;
@@ -64,7 +64,7 @@ simulated function ApplyMaterials(optional int NumMappingsToApply = `MAX_MATERIA
 
     NumMappingsToApply = Clamp(NumMappingsToApply, 0, `MAX_MATERIAL_MAPPINGS);
 
-    `cmmlog("NumMappingsToApply=" $ NumMappingsToApply $ " bReplicate=" $ bReplicate $ " RepliateToMRI=" $ RepliateToMRI);
+    `cmmlog("NumMappingsToApply=" $ NumMappingsToApply $ " bReplicate=" $ bReplicate $ " ReplicateToMRI=" $ ReplicateToMRI);
 
     MatCache = CMMPlayerController(Owner.GetALocalPlayerController()).GetMatCache();
 
@@ -86,11 +86,11 @@ simulated function ApplyMaterials(optional int NumMappingsToApply = `MAX_MATERIA
         `cmmlog("setting MIC: " $ MIC $ " on: " $ TargetComp $ " index: " $ MM.MaterialIndex $ " MaterialName: " $ MM.MaterialName);
         TargetComp.SetMaterial(MM.MaterialIndex, MIC);
 
-        if (bReplicate && (RepliateToMRI != None))
+        if (bReplicate && (ReplicateToMRI != None))
         {
-            RepliateToMRI.ReplMatMappings[Idx].TargetCompID = MM.TargetCompID;
-            RepliateToMRI.ReplMatMappings[Idx].MaterialIndex = MM.MaterialIndex;
-            RepliateToMRI.ReplMatMappings[Idx].MaterialID = MM.MaterialID;
+            ReplicateToMRI.ReplMatMappings[Idx].TargetCompID = MM.TargetCompID;
+            ReplicateToMRI.ReplMatMappings[Idx].MaterialIndex = MM.MaterialIndex;
+            ReplicateToMRI.ReplMatMappings[Idx].MaterialID = MM.MaterialID;
         }
     }
 }
