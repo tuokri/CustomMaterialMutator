@@ -11,21 +11,10 @@ replication
 
 simulated event PostBeginPlay()
 {
-    local int Idx;
-    local int MaterialID;
-
     super.PostBeginPlay();
 
     MaterialReplicationInfo = Spawn(class'CMMMaterialReplicationInfo', self,, vect(0,0,0), rot(0,0,0));
-
-    for (Idx = 0; Idx < `MAX_MATERIAL_MAPPINGS; ++Idx)
-    {
-        MaterialReplicationInfo.ReplMatMappings[Idx].TargetCompID = CustomMaterialContainer.MaterialMappings[Idx].TargetCompID;
-        MaterialReplicationInfo.ReplMatMappings[Idx].MaterialIndex = CustomMaterialContainer.MaterialMappings[Idx].MaterialIndex;
-        MaterialID = CMMPlayerController(GetALocalPlayerController()).GetMatCache().GetMaterialID(CustomMaterialContainer.MaterialMappings[Idx].MaterialName);
-        MaterialReplicationInfo.ReplMatMappings[Idx].MaterialID = MaterialID;
-    }
-    MaterialReplicationInfo.ReplCount = `MAX_MATERIAL_MAPPINGS;
+    CustomMaterialContainer.ApplyMaterials(`MAX_MATERIAL_MAPPINGS, True, MaterialReplicationInfo);
 }
 
 simulated event Destroyed()
