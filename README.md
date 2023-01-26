@@ -1,5 +1,7 @@
 # Custom Material Mutator
 
+# NOTE: DO NOT USE THIS, THERE IS NOW A MUCH SIMPLER WAY TO ACHIEVE THIS: https://github.com/tuokri/UE3ShaderCachePatcher
+
 Proof of concept RS2 mutator with fully working replication that shows how to dynamically load custom master materials from a separate dedicated level file that contains the materials.
 
 https://steamcommunity.com/sharedfiles/filedetails/?id=2823262858
